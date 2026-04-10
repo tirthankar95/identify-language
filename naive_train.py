@@ -6,11 +6,11 @@ import os
 MODEL_PATH = Path(os.getcwd() + "/model")
 
 
-def train_file(lang: str, filename: str):
+def train_file(lang: str, filename: str, clean: bool):
     folder = MODEL_PATH / lang
     folder.mkdir(parents=False, exist_ok=True)
     freq = {}
-    if (folder / "freq_model").is_file():
+    if (folder / "freq_model").is_file() and not clean:
         with open(str(folder / "freq_model"), "r") as file:
             freq = json.load(file)
     with open(filename, "r") as file:
@@ -23,11 +23,11 @@ def train_file(lang: str, filename: str):
         json.dump(freq, file, indent=4)
 
 
-def train_pdf(lang: str, filename: str):
+def train_pdf(lang: str, filename: str, clean: bool):
     folder = MODEL_PATH / lang
     folder.mkdir(parents=False, exist_ok=True)
     freq = {}
-    if (folder / "freq_model").is_file():
+    if (folder / "freq_model").is_file() and not clean:
         with open(str(folder / "freq_model"), "r") as file:
             freq = json.load(file)
     reader = PdfReader(filename)
