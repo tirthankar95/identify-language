@@ -33,10 +33,9 @@ def train_pdf(lang: str, filename: str):
     reader = PdfReader(filename)
     for page in reader.pages:
         text = page.extract_text()
-        for line in text:
-            for word in line.split():
-                if word not in freq:
-                    freq[word] = 0
-                freq[word] += 1
+        for word in text.split():
+            if word not in freq:
+                freq[word] = 0
+            freq[word] += 1
     with open(str(folder / "freq_model"), "w") as file:
-        json.dump(freq, file, ident=4)
+        json.dump(freq, file, indent=4)

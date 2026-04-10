@@ -1,0 +1,14 @@
+{
+    "/Users/tmittra/doc-language-identification/train-data/en/book2.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/en/book1.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/de/book2.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/de/book1.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/es/book2.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/es/book1.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/fr/book2.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/fr/book1.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/zh/book2.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/zh/book1.txt": true,
+    "/Users/tmittra/doc-language-identification/train-data/ben/book1.pdf": true,
+    "/Users/tmittra/doc-language-identification/train-data/ben/book2.pdf": true
+}
