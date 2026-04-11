@@ -1,0 +1,25 @@
+The Apollo program was a United States human spaceflight program carried out from 1961 to 1972 by the National Aeronautics and Space Administration (NASA), which landed the first astronauts on the Moon.[1] The program used the Saturn IB and Saturn V launch vehicles to lift the Command/Service Module (CSM) and Lunar Module (LM) spacecraft into space, and the Little Joe II rocket to test a launch escape system which was expected to carry the astronauts to safety in the event of a Saturn failure.[2] Uncrewed test flights beginning in 1966 demonstrated the safety of the launch vehicles and spacecraft to carry astronauts, and four crewed flights beginning in October 1968 demonstrated the ability of the spacecraft to carry out a lunar landing mission.
+
+Apollo achieved the first crewed lunar landing on the Apollo 11 mission, when Neil Armstrong and Buzz Aldrin landed their LM Eagle in the Sea of Tranquility and walked on the lunar surface, while Michael Collins remained in lunar orbit in the CSM Columbia, and all three landed safely on Earth on July 24, 1969.[3] Five subsequent missions landed astronauts on various lunar sites, ending in December 1972 with 12 men having walked on the Moon[4] and 842 pounds (382 kg) of lunar rocks and soil samples returned to Earth, greatly contributing to the understanding of the Moon's composition and geological history.[5]
+
+Two Apollo missions were failures: a 1967 cabin fire killed the entire Apollo 1 crew during a ground test in preparation for what was to be the first crewed flight;[6] and the third landing attempt on Apollo 13 was aborted by an oxygen tank explosion en route to the Moon, which disabled the CSM Odyssey's electrical power and life support systems, and made the propulsion system unsafe to use. The crew circled the Moon and were returned safely to Earth using the LM Aquarius as a "lifeboat" for these functions.[7]
+
+Uncrewed test flights
+From 1961 through 1967, Saturn launch vehicles and Apollo spacecraft components were tested in uncrewed flights.
+
+Saturn I
+The Saturn I launch vehicle was originally planned to carry crewed Command Module flights into low Earth orbit, but its 20,000-pound (9,100 kg) payload capacity limit could not lift even a partially fueled Service Module, which would have required building a lightweight retrorocket module for deorbit. These plans were eventually scrapped in favor of using the uprated Saturn IB to launch the Command Module with a half-fueled Service Module for crewed Earth orbit tests. This limited Saturn I flights to Saturn launch vehicle development, CSM boilerplate testing, and three Pegasus micrometeoroid satellite missions in support of Apollo.
+
+Saturn I missions
+Mission	LV	Launch	Pad	Remarks	Refs
+SA-1	SA-1	October 27, 1961, 15:06	LC-34	Test of Saturn I first stage S-I; dummy upper stages carried water	[1][8][9]
+SA-2	SA-2	April 25, 1962, 14:00	LC-34	Dummy upper stages released 22,900 U.S. gallons (86,685 L) of water into upper atmosphere, to investigate effects on radio transmission and changes in local weather conditions	[1][8][9]
+SA-3	SA-3	November 16, 1962, 17:45	LC-34	Repeat of SA-2 mission	[1][8][9]
+SA-4	SA-4	March 28, 1963, 20:11	LC-34	Test premature shutdown of a single S-I engine	[1][8][9]
+SA-5	SA-5	January 29, 1964, 16:25	LC-37B	First flight of live second stage. First orbital flight.	[1][8][9]
+AS-101	SA-6	May 28, 1964, 17:07	LC-37B	Tested first boilerplate Apollo command and service module (CSM) for structural integrity	[1][9]
+AS-102	SA-7	September 18, 1964, 17:22	LC-37B	Carried first programmable-in-flight computer on the Saturn I vehicle; last launch vehicle development flight	[1][9]
+AS-103	SA-9	February 16, 1965, 14:37	LC-37B	Carried Pegasus A satellite and boilerplate CSM	[1][9]
+AS-104	SA-8	May 25, 1965, 07:35	LC-37B	Carried Pegasus B satellite and boilerplate CSM	[1][9]
+AS-105	SA-10	July 30, 1965, 13:00	LC-37B	Carried Pegasus C satellite and boilerplate CSM	[1][9]
+There was some incongruity in the numbering and naming of the first three uncrewed Apollo-Saturn (AS) or Apollo flights. This is due to AS-204 being renamed to Apollo 1 posthumously. This crewed flight was to have followed the first three uncrewed flights. After the fire which killed the AS-204 crew on the pad during a test and training exercise, uncrewed Apollo flights resumed to test the Saturn V launch vehicle and the Lunar Module; these were designated Apollo 4, 5 and 6. The first crewed Apollo mission was thus Apollo 7. Simple "Apollo" numbers were never assigned to the first three uncrewed flights, although renaming AS-201, AS-202, and AS-203 as Apollo 1-A, Apollo 2 and Apollo 3, had been briefly considered.[6]

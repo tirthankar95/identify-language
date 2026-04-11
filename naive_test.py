@@ -4,41 +4,55 @@ import logging
 from pathlib import Path
 from pypdf import PdfReader
 from naive_train import tokenize_text
-from commons import tokenize_text, load_model, MODEL_PATH, TRAIN_PATH
+from commons import tokenize_text, load_model, MODEL_PATH
 
 logger = logging.getLogger(__name__)
+# No language has 1 billion tokens
+DEFAULT_SCORE = math.log(1 / (10**9))
 
 
 def score_tokens(model, tokens) -> float:
     score = 0.0
     for token in tokens:
-        if token in model:
-            score += model[token]
+        score += model[token] if token in model else DEFAULT_SCORE
     return score
 
 
-def laplace_smoothen(model, nc, alpha: int = 0.1):
+def token_matches(model, tokens) -> float:
+    cnt = 0
+    for token in tokens:
+        cnt += 1 if token in model else 0
+    return cnt
+
+
+def laplace_smoothen(model, nc, alpha: int = 1.0) -> dict:
     total = 0
     for k, v in model.items():
         total += v
+    new_model = {}
     for k, v in model.items():
         v_temp = math.log((v + alpha) / (total + nc * alpha))
-        model[k] = v_temp
+        new_model[k] = v_temp
+    return new_model
 
 
 def predict_text(text: str) -> str:
     with open("folder_to_label.json", "r") as file:
         f2l = json.load(file)
     c = len(f2l)  # no. of classes
-    tokens = tokenize_text(text)
-    scores = []
+    tokens, scores = tokenize_text(text), []
     for folder, label in f2l.items():
-        folder_path = TRAIN_PATH / folder
+        folder_path = MODEL_PATH / label
         model = load_model(folder_path)
-        model = laplace_smoothen(model, c)
-        scores.append((score_tokens(model, tokens), label))
+        n_model = laplace_smoothen(model, c)
+        _match = token_matches(model, tokens)
+        scores.append([score_tokens(n_model, tokens), label, _match])
     scores.sort()
-    return scores[-1][0]
+    ref = scores[0][0]
+    for idx, x in enumerate(scores):
+        scores[idx][0] = scores[idx][0] - ref
+    logger.debug(f"{scores=}")
+    return scores[-1][1]
 
 
 def test_file(filepath: str) -> str:

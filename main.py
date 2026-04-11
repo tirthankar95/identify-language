@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from naive_train import train_file, train_pdf
 from naive_test import test_file, test_pdf
-from commons import MODEL_PATH, TRAIN_PATH
+from commons import MODEL_PATH, TRAIN_PATH, TEST_PATH
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
@@ -55,15 +55,14 @@ def train(clean: bool = False):
 
 # ---------------------- TEST ----------------------
 def test(filepath: str):
-    filepath = Path(filepath)
-    if not filepath.exists():
+    if not Path(filepath).exists():
         logging.error(f"File does not exist: {filepath}")
         return
     ext = filepath.split(".")[-1]
-    if ext == ".txt":
-        test_file(str(filepath))
-    elif ext == ".pdf":
-        test_pdf(str(filepath))
+    if ext == "txt":
+        return test_file(filepath)
+    elif ext == "pdf":
+        return test_pdf(filepath)
     else:
         logging.warning(f"Unsupported file extension: {ext}")
 
@@ -81,10 +80,13 @@ def main():
     if args.mode == "train":
         train(clean=args.clean)
     elif args.mode == "test":
-        if not args.filepath:
-            logging.error("Please provide --filepath for test mode")
-            return
-        test(args.filepath)
+        if args.filepath:
+            test(args.filepath)
+        else:
+            for file in TEST_PATH.glob("*"):
+                filename = str(file).split("/")[-1]
+                prediction = test(str(file))
+                print(f"{filename} ~ language: {prediction}")
 
 
 if __name__ == "__main__":
