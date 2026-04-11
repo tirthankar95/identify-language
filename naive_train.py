@@ -1,41 +1,37 @@
-from pypdf import PdfReader
-from pathlib import Path
 import json
-import os
+import logging
+from pathlib import Path
+from pypdf import PdfReader
+from commons import tokenize_text, load_model, MODEL_PATH
 
-MODEL_PATH = Path(os.getcwd() + "/model")
+logger = logging.getLogger(__name__)
 
 
-def train_file(lang: str, filename: str, clean: bool):
+def save_model(folder: Path, freq: dict[str, int]) -> None:
+    with (folder / "freq_model").open("w", encoding="utf-8") as file:
+        json.dump(freq, file, indent=4, sort_keys=True)
+
+
+def update_model(freq: dict[str, int], text: str):
+    tokens = tokenize_text(text)
+    for token in tokens:
+        freq[token] = freq.get(token, 0) + 1
+
+
+def train_file(lang: str, filename: str, clean: bool = False) -> int:
     folder = MODEL_PATH / lang
-    folder.mkdir(parents=False, exist_ok=True)
-    freq = {}
-    if (folder / "freq_model").is_file() and not clean:
-        with open(str(folder / "freq_model"), "r") as file:
-            freq = json.load(file)
-    with open(filename, "r") as file:
-        for line in file:
-            for word in line.split():
-                if word not in freq:
-                    freq[word] = 0
-                freq[word] += 1
-    with open(str(folder / "freq_model"), "w") as file:
-        json.dump(freq, file, indent=4)
+    folder.mkdir(parents=True, exist_ok=True)
+    freq = load_model(folder, clean=clean)
+    with Path(filename).open("r", encoding="utf-8") as file:
+        update_model(freq, file.read())
+    save_model(folder, freq)
 
 
-def train_pdf(lang: str, filename: str, clean: bool):
+def train_pdf(lang: str, filename: str, clean: bool = False) -> int:
     folder = MODEL_PATH / lang
-    folder.mkdir(parents=False, exist_ok=True)
-    freq = {}
-    if (folder / "freq_model").is_file() and not clean:
-        with open(str(folder / "freq_model"), "r") as file:
-            freq = json.load(file)
+    folder.mkdir(parents=True, exist_ok=True)
+    freq = load_model(folder, clean=clean)
     reader = PdfReader(filename)
     for page in reader.pages:
-        text = page.extract_text()
-        for word in text.split():
-            if word not in freq:
-                freq[word] = 0
-            freq[word] += 1
-    with open(str(folder / "freq_model"), "w") as file:
-        json.dump(freq, file, indent=4)
+        update_model(freq, page.extract_text() or "")
+    save_model(folder, freq)

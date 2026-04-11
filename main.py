@@ -1,43 +1,98 @@
-from naive_train import train_file, train_pdf
-from pathlib import Path
-import glob
 import json
-import os
+import argparse
+import logging
+from pathlib import Path
+from naive_train import train_file, train_pdf
+from naive_test import test_file, test_pdf
+from commons import MODEL_PATH, TRAIN_PATH
 
-TRAIN_PATH = Path(os.getcwd() + "/train-data")
-MODEL_PATH = Path(os.getcwd() + "/model")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
+)
 
 
+# ---------------------- TRAIN ----------------------
 def train(clean: bool = False):
-    # Get folder to label mapping.
+    logging.info(f"Starting training | clean={clean}")
+
+    # Load folder-to-label mapping
     with open("folder_to_label.json", "r") as file:
         f2l = json.load(file)
-    # Load json which enables incremental processing of files.
-    proc, proc_path = {}, MODEL_PATH / "processed.json"
-    if proc_path.is_file() and not clean:
-        with open(str(proc_path), "r") as file:
+
+    proc_path = MODEL_PATH / "processed.json"
+    proc = {}
+
+    # Load already processed files (if not clean)
+    if proc_path.exists() and not clean:
+        with open(proc_path, "r") as file:
             proc = json.load(file)
-    for k, v in f2l.items():
-        # If it's a text file.
-        txt_files = glob.glob(str(TRAIN_PATH / k) + "/*.txt")
-        for txt_file in txt_files:
+
+    for folder, label in f2l.items():
+        folder_path = TRAIN_PATH / folder
+
+        # Process TXT files
+        for txt_file in folder_path.glob("*.txt"):
+            txt_file = str(txt_file)
             if txt_file not in proc:
-                train_file(v, txt_file, clean)
+                logging.info(f"Training TXT: {txt_file}")
+                train_file(label, txt_file, clean)
                 proc[txt_file] = True
-        # If it's a pdf file.
-        pdf_files = glob.glob(str(TRAIN_PATH / k) + "/*.pdf")
-        for pdf_file in pdf_files:
+
+        # Process PDF files
+        for pdf_file in folder_path.glob("*.pdf"):
+            pdf_file = str(pdf_file)
             if pdf_file not in proc:
-                train_pdf(v, pdf_file, clean)
+                logging.info(f"Training PDF: {pdf_file}")
+                train_pdf(label, pdf_file, clean)
                 proc[pdf_file] = True
-    # Save files which have been processed to stop re-processing.
-    with open(str(proc_path), "w") as file:
+
+    # Save processed files
+    with open(proc_path, "w") as file:
         json.dump(proc, file, indent=4)
+
+    logging.info("Training complete")
+
+
+# ---------------------- TEST ----------------------
+def test(filepath: str):
+    filepath = Path(filepath)
+    if not filepath.exists():
+        logging.error(f"File does not exist: {filepath}")
+        return
+    ext = filepath.split(".")[-1]
+    if ext == ".txt":
+        test_file(str(filepath))
+    elif ext == ".pdf":
+        test_pdf(str(filepath))
+    else:
+        logging.warning(f"Unsupported file extension: {ext}")
 
 
 def main():
-    train()
+    parser = argparse.ArgumentParser(description="Train/Test Naive Model")
+    parser.add_argument(
+        "--mode", choices=["train", "test"], required=True, help="Mode: train or test"
+    )
+    parser.add_argument(
+        "--clean", action="store_true", help="Clean training (ignore processed.json)"
+    )
+    parser.add_argument("--filepath", type=str, help="File path for testing")
+    args = parser.parse_args()
+    if args.mode == "train":
+        train(clean=args.clean)
+    elif args.mode == "test":
+        if not args.filepath:
+            logging.error("Please provide --filepath for test mode")
+            return
+        test(args.filepath)
 
 
 if __name__ == "__main__":
     main()
+    """
+    Example 1:
+    python3 main.py --mode train --clean
+    
+    Example 2:
+    python3 main.py --mode train
+    """
