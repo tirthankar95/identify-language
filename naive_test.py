@@ -45,7 +45,7 @@ def predict_text(text: str, ngram: int) -> str:
     tokens, scores = tokenize_text(text), []
     for folder, label in f2l.items():
         folder_path = MODEL_PATH / label
-        model = load_model(folder_path)
+        model = load_model(folder_path, ngram)
         n_model = laplace_smoothen(model, c)
         _match = token_matches(model, tokens, ngram)
         scores.append([score_tokens(n_model, tokens, ngram), label, _match])
@@ -56,9 +56,9 @@ def predict_text(text: str, ngram: int) -> str:
 
     def pretty_scores(scores):
         lines = ["\nScores:"]
-        lines.append("-" * 36)
-        lines.append(f"{'Score':>12} | {'Language':<10} | {'Count':>5}")
-        lines.append("-" * 36)
+        lines.append("-" * 48)
+        lines.append(f"{'Score':>12} | {'Language':<10} | {'N-gram match count':>5}")
+        lines.append("-" * 48)
         for score, lang, count in sorted(scores, reverse=True):
             lines.append(f"{score:12.4f} | {lang:<10} | {count:5}")
         return "\n".join(lines) + "\n"

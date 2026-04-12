@@ -97,4 +97,7 @@ if __name__ == "__main__":
     
     Example 2:
     python3 main.py --mode train
+    
+    Example 3:
+    python3 main.py --mode test
     """
