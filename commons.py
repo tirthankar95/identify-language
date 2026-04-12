@@ -17,8 +17,8 @@ def tokenize_text(text: str) -> list[str]:
     return [token.lower() for token in TOKEN_PATTERN.findall(text)]
 
 
-def load_model(folder: Path, clean: bool = False) -> dict[str, int]:
-    model_file = folder / "freq_model"
+def load_model(folder: Path, ng: int, clean: bool = False) -> dict[str, int]:
+    model_file = folder / f"freq_model_{ng}gram"
     if clean or not model_file.is_file():
         return {}
     with model_file.open("r", encoding="utf-8") as file:
