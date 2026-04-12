@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from pypdf import PdfReader
 from naive_train import tokenize_text
+from colorama import Style, Back
 from commons import tokenize_text, load_model, MODEL_PATH
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ def predict_text(text: str, ngram: int) -> str:
         scores[idx][0] = scores[idx][0] - ref
 
     def pretty_scores(scores):
-        lines = ["\nScores:"]
+        lines = ["\nDetailed Table:"]
         lines.append("-" * 48)
         lines.append(f"{'Score':>12} | {'Language':<10} | {'N-gram match count':>5}")
         lines.append("-" * 48)
@@ -64,7 +65,19 @@ def predict_text(text: str, ngram: int) -> str:
         return "\n".join(lines) + "\n"
 
     logger.info(pretty_scores(scores))
-
+    # Print the composition of a text.
+    total_grams = sum(score[2] for score in scores)
+    keep, TH = [], 0.05 * total_grams
+    for score, lang, ngram_cnt in scores:
+        if ngram_cnt >= TH:
+            keep.append((lang, ngram_cnt))
+    new_total_grams = sum([x[1] for x in keep])
+    keep.sort(key=lambda x: -x[1])
+    print(f"{Style.BRIGHT}{Back.CYAN}Language Mix.{Style.RESET_ALL}")
+    for lang, ngram_cnt in keep:
+        ngram_cnt = round((ngram_cnt * 100) / new_total_grams, 2)
+        print(f"{Style.BRIGHT}{lang:<15} ~ {ngram_cnt:>6.2f}%{Style.RESET_ALL}")
+    print()
     return scores[-1][1]
 
 

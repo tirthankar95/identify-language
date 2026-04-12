@@ -44,14 +44,17 @@ In train mode, you can run it in two ways. By activating the `--clean` option, t
 In test mode, the trained model is used to identify languages in new documents.
 
 ```python
-    Example 1:
+    Example 1:(Clean training of ngram 2 model)
     python3 main.py --mode train --clean --ngram 2
     
-    Example 2:
+    Example 2:(For incremental training when a new file is added for an existing model)
     python3 main.py --mode train
     
-    Example 3:
-    python3 main.py --mode test
+    Example 3:(For more information about a run)
+    python3 main.py --mode test --ngram 2 --log-level INFO
+
+    Example 4:(Predict language of a specific file)
+    python3 main.py --mode test --ngram 2 --filepath train-data/de/book1.txt
 ```
 
 ## Adding a new language
