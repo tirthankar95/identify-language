@@ -2,24 +2,51 @@
 1. [About](#about)
 2. [Project structure](#project-structure)
 3. [How to run the code](#how-to-run-the-code)
-4. [Adding a new language](#adding-a-new-language)
-5. [Challenges](#challenges)
+4. [Adding a new language](#adding-a-new-language) 
+5. [Code Analysis](#code-analysis)
+6. [Challenges](#challenges)
 
 ## About 
-This project is used to automatically detect the language in a document. Note that detecting a language is not the same as detecting the script because multiple languages can share the same script.
+This project is used to perform automatic language detection in a document. Note that, detecting the language of a document is not the same as detecting the script because multiple languages can share the same script (e.g., Spanish and Portuguese, or Hindi and Marathi).
 
 We can represent this task as a conditional probability
-$$p(E_0|w_0 w_1... w_N) = \frac{p(E_0) \cdot p(w_0 w_1... w_N|E_0)}{p(w_0 w_1... w_N)}$$
+$$p(E_0|w_0 w_1... w_N) = \frac{p(E_0) \cdot p(w_0 w_1... w_N|E_0)}{p(w_0 w_1... w_N)}\tag{1}$$
 where,
-$E_0$ ~ Is a language category
-$w_0 w_1...$ ~ Represents words in a text
+$E_0$ ~ is a particular language, 
+$w_0 w_1... w_N$ ~ represents words in a text.
 
-If we divide the above equation with another language $E_1$, we get the following equation
-$$\frac{p(E_0|w_0 w_1... w_N)}{p(E_1|w_0 w_1... w_N)} = \frac{p(w_0 w_1... w_N|E_0)}{p(w_0 w_1... w_N|E_1)}$$
-provided we assume.
-$p(E_0) = p(E_1)$ i.e. the expectation of getting documents of different languages are equally likely.
-We can also use p(E_0) = \frac{# of people who speak language }{} which is a proxy for , if we use this expectations this means the likelihood our model gets this document is proportional to the number of people in the world who speak this language. 
+If we divide the above equation with the equation of another language $E_1$, we get the following.
+$$\frac{p(E_0|w_0 w_1... w_N)}{p(E_1|w_0 w_1... w_N)} = \frac{p(w_0 w_1... w_N|E_0)}{p(w_0 w_1... w_N|E_1)}\tag{2}$$
 
+Provided we assume that $p(E_0) = p(E_1),$ i.e., the probability (or expectation) of obtaining documents from different languages is equal. Alternatively, we can estimate $p(E_0) = \frac{\text{People who speak language }E_0}{\text{Total people}}.$
+This serves as a proxy for the fraction of documents in language $E_0$. Under this assumption, the likelihood that our model encounters a document in a given language is proportional to the number of people worldwide who speak that language. But for simplicity we assume the prior probabilities are equal.
+
+For **uni-gram models**, Equation(2) can be simplified to Equation(3) below, because every token is assumed to be independent.
+$$\frac{p(E_0|w_0 w_1... w_N)}{p(E_1|w_0 w_1... w_N)} = \frac{\prod\limits_{i=0}^{N}p(w_{i}|E_0)}{\prod\limits_{i=0}^{N}p(w_{i}|E_1)}\tag{3}$$
+To calculate the probability of a token $w_j$ appearing in a text written in language  $E_0$ is given by the following formula, which is also known as `laplace smoothing`.
+$$p(w_j|E_0)=\frac{f_j + \alpha}{N_0 + \alpha \cdot c}\tag{4}$$
+where,
+$\alpha$ = typically set as 1.0, its used to prevent the entire probability from going to zero.
+c = total number of classes, which is the same as total number of languages in our case.
+$N_0$ = vocabulary size
+$f_j$ = frequency of the term $w_j$ appearing in the text. 
+
+A more generic form of Equation(3) is shown below, we call the equation below the score of language $E_i$, where $E_{ref} = \text{argmin}_{E_j} \prod\limits_{i=0}^{N}p(w_{i}|E_{j})$
+$$Score(E_i) = \frac{\prod\limits_{i=0}^{N}p(w_{i}|E_i)}{\prod\limits_{i=0}^{N}p(w_{i}|E_{ref})}\tag{5}$$
+
+For **bi-gram models**, Equation(5) changes to Equation(6). This pattern continues for other higher n-gram models.
+$$Score(E_i) = \frac{\prod\limits_{i=0}^{N-1}p(w_{i}w_{i+1}|E_i)}{\prod\limits_{i=0}^{N-1}p(w_{i}w_{i+1}|E_{ref})}\tag{6}$$
+
+
+## Project structure
+- **train-data/** — Language-specific corpus for training models
+- **test-data/** — Sample documents for testing language identification
+- **model/** — Contains trained language models (frequency data for 1-gram and 2-gram)
+- **main.py** — Primary script to run train or test modes, this is the main entry point of the code
+- **commons.py** — Shared utilities and helper functions b/w files naive_test.py and naive_train.py
+- **naive_trian.py** — Contains code to load, train and save n-gram models
+- **naive_test.py** — Contains code to load saved model and do inference
+- **pyproject.toml** — Project configuration and dependencies
 
 ## How to run the code
 
@@ -31,24 +58,24 @@ source .venv/bin/activate
 
 ### 2. Run the code
 
-To explore all the options/modes to run the code paste the following command. 
+To explore all the options/modes, the following command can be used. 
 ```python
 python3 main.py --help
 ```
 
 There are two modes to run this code:
-1. **train mode** — Trains the model using the corpus
+1. **train mode** — Trains the model using the corpus stored in train-data folder
 2. **test mode** — Uses the trained model for inference
 
-In train mode, you can run it in two ways. By activating the `--clean` option, the model is trained from scratch. Without it, the model continues training on existing data.
-In test mode, the trained model is used to identify languages in new documents.
+In train mode, you can run the code in two ways. By activating the `--clean` option, in which the model is trained from scratch. Without this flag, the model only trains on the newly added documents, incrementally. And, in test mode, the trained model is used to identify languages in a document provided by users.
 
+Some examples of the different modes in which the code can be run are shown below.
 ```python
     Example 1:(Clean training of ngram 2 model)
-    python3 main.py --mode train --clean --ngram 2
+    python3 main.py --mode train --clean --ngram 2 --log-level INFO
     
     Example 2:(For incremental training when a new file is added for an existing model)
-    python3 main.py --mode train
+    python3 main.py --mode train --ngram 2 --log-level INFO
     
     Example 3:(For more information about a run)
     python3 main.py --mode test --ngram 2 --log-level INFO
@@ -56,49 +83,65 @@ In test mode, the trained model is used to identify languages in new documents.
     Example 4:(Predict language of a specific file)
     python3 main.py --mode test --ngram 2 --filepath train-data/de/book1.txt
 ```
+As shown in the above examples, for any run --ngram flag is required and it indicates what type of n-gram models to train or use to do the inference. 
+Currently, the code can process only two types of file extensions **.pdf** and **.txt**.
 
 ## Adding a new language
-Broadly speaking, there are about 7,168 living languages in the world today. However, linguistic diversity is heavily skewed: just 23 languages account for more than half of the world's population.
-I'll take the top 10 languages
+Broadly speaking, there are about **7,168 living languages** in the world. However, linguistic diversity is highly skewed, which is illustrated by the table below which shows total speakers by different languages.
 
-Rank,Language,Total Speakers,Primary Script
-1,English,1.5 Billion,Latin
-2,Mandarin Chinese,1.2 Billion,Han (Simplified/Traditional)
-3,Hindi,629 Million,Devanagari
-4,Spanish,590 Million,Latin
-5,French,416 Million,Latin
-6,Modern Arabic,335 Million,Arabic
-7,Portuguese,282 Million,Latin
-8,Bengali,278 Million,Bengali-Assamese
+| Rank | Language           | Total Speakers | Primary Script                  |
+|------|------------------|---------------|--------------------------------|
+| 1    | English           | 1.5 Billion   | Latin                          |
+| 2    | Mandarin Chinese  | 1.2 Billion   | Han (Simplified/Traditional)   |
+| 3    | Hindi             | 629 Million   | Devanagari                     |
+| 4    | Spanish           | 590 Million   | Latin                          |
+| 5    | French            | 416 Million   | Latin                          |
+| 6    | Modern Arabic     | 335 Million   | Arabic                         |
+| 7    | Portuguese        | 282 Million   | Latin                          |
+| 8    | Bengali           | 278 Million   | Bengali–Assamese               |
 
-## Project structure
-- **train-data/** — Language-specific corpus for training models
-- **test-data/** — Sample documents for testing language identification
-- **model/** — Contains trained language models (frequency data for 1-gram and 2-gram)
-- **main.py** — Primary script to run train or test modes
-- **commons.py** — Shared utilities and helper functions
-- **pyproject.toml** — Project configuration and dependencies
+Therefore for simplicity, we consider the following popular languages **English, German, French, Spanish, Mandarin, Bengali** for this project and make it easy to onboard a new language.
+This steps below show how to add a new language to our project.
+1. Add an entry for the new language to `folder_to_label.json`. For example, if we want to add Korean we add `kr: Korean`, where kr is the shorthand for the language, one can choose any shorthand for a language.
+2. Add the **korean language corpus** to **kr** folder inside **train-data**. 
+3. Run `python3 main.py --mode train --ngram 2 --log-level INFO` to create a bi-gram model for the Korean language.
+
+## Code Analysis
+
+Language detection using **n-gram models** involves trade-offs between accuracy and memory usage.
+
+**`Uni-gram Models (n-gram = 1)`** consider individual words independently. While they are **memory-efficient**, they are often **less accurate**, especially for closely related languages.
+- Similar languages (e.g., English and German) may share common words.
+- This leads to **overlapping predictions** and noisy language distributions.
+- Uni-grams also struggle to distinguish, truly **multilingual documents** from **single-language documents** with incidental overlap
+
+**Example Output:**
+
+<img src="images/Uni-gram.png" width="400" height="320" alt="uni-gram model results">
+
+**Observations:**  
+Although the document is correctly classified as English, a significant portion is attributed to German and other languages. This is likely due to shared vocabulary, numeric tokens and noisy training data where language of one type is present in the document of another language type.
+
+**`Tri-gram Models (n-gram = 3)`** consider sequences of three words, capturing **context and structure**.
+- Much **higher accuracy**  
+- Reduced ambiguity between similar languages
+
+**Example Output:**
+
+<img src="images/Tri-gram.png" width="400" height="320" alt="uni-gram model results">
+
+**Observations:**  
+For tri-gram models, in the worst case scenario we'll have $N^3$ memory usage where $N$ is the size of the vocabulary. If $N$ is one million the model cannot be stored in normal RAM. To limit the excessive memory usage, most frequent tri-grams must be stored. Moving past tri-grams would mean the number of matches in the test document will decrease which is especially a problem for short texts/tweets.
+
+**Improvements:** For each language we quickly built a corpus by downloading two free books from **Project Gutenberg**, the books might not have one pure language, there could be noisy data like wrong english phrases or english spellings. It's possible to build a better training corpus. 
 
 ## Challenges
-1. A document may contain multiple languages, requiring a percentage-based representation of detected languages.
-2. With many languages available, should focus on top popular languages or support all?
-3. PDF documents come in two types: text-based and image-based. Currently, text-based PDFs are supported.    
+1. **Multilingual Documents**  
+   A single document may contain multiple languages, making it necessary to detect and represent languages in a **percentage-based distribution** rather than assigning a single label.
 
+2. **Scalability Across Languages**  
+   With thousands of languages worldwide, we could only focus on a subset of **high-resource / widely spoken languages**. 
 
-The "Middle" Way: Script Detection (Unicode)
-Before identifying the language (e.g., "Is this Spanish or Italian?"), you can identify the Script (e.g., "Is this Latin or Cyrillic?"). Every character has a "Script" property in the Unicode Standard.
-
-Unicode Ranges: Characters are organized into blocks. For example:
-
-U+0000 to U+007F: Basic Latin (English, etc.)
-
-U+0600 to U+06FF: Arabic
-
-U+0900 to U+097F: Devanagari (Hindi)
-
-How it works: You iterate through the characters of your string and check which Unicode block they fall into. If 90% of characters are in the Devanagari block, you know the script is Devanagari, which narrows the language down to Hindi, Marathi, Nepali, etc.
-
-
-Language and scripts are different. 
-So simple identification of script will not work if you check the unicode ranges.
-
+3. **Tokenization Differences Across Languages**  
+   Languages like English, French, or German use **whitespace-delimited words**, making tokenization straightforward.  
+   In contrast, languages such as Chinese do not use spaces between words, which complicates tokenization. For simplicity, the current approach handles Chinese by building a **unigram model** based on **unicode character ranges**
