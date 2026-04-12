@@ -8,9 +8,6 @@ from commons import MODEL_PATH, TRAIN_PATH, TEST_PATH
 from colorama import Fore, Style, init
 
 init(autoreset=True)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
-)
 
 
 # ---------------------- TRAIN ----------------------
@@ -71,33 +68,55 @@ def main():
     )
     parser.add_argument("--ngram", required=True, help="N-grams to consider", type=int)
     parser.add_argument("--filepath", type=str, help="File path for testing")
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="WARNING",
+        help="Logging level (default: INFO)",
+    )
     args = parser.parse_args()
+    # Configure logging based on user input
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format="%(asctime)s | %(levelname)s | %(message)s",
+    )
+    print("\n\n")
     if args.mode == "train":
         train(args.ngram, clean=args.clean)
     elif args.mode == "test":
+        WIDTH = 25  # adjust based on longest filename (print)
         if args.filepath:
-            test(args.ngram, args.filepath)
+            prediction = test(args.ngram, args.filepath)
+            print(
+                f"{Fore.CYAN}{Style.BRIGHT}{args.filepath:<{WIDTH}}{Style.RESET_ALL}"
+                f"{Fore.GREEN}{Style.BRIGHT}: {prediction}{Style.RESET_ALL}"
+            )
+            print(f"{Style.BRIGHT}\n" + "-" * 48 + f"\n{Style.RESET_ALL}")
+            print("\n\n")
         else:
             for file in TEST_PATH.glob("*"):
                 filename = str(file).split("/")[-1]
                 prediction = test(args.ngram, str(file))
-                WIDTH = 25  # adjust based on longest filename
                 print(
                     f"{Fore.CYAN}{Style.BRIGHT}{filename:<{WIDTH}}{Style.RESET_ALL}"
                     f"{Fore.GREEN}{Style.BRIGHT}: {prediction}{Style.RESET_ALL}"
                 )
+                print(f"{Style.BRIGHT}\n" + "-" * 48 + f"\n{Style.RESET_ALL}")
                 print("\n\n")
 
 
 if __name__ == "__main__":
     main()
     """
-    Example 1:
+    Example 1:(Clean training of ngram 2 model)
     python3 main.py --mode train --clean --ngram 2
     
-    Example 2:
+    Example 2:(For incremental training when a new file is added for an existing model)
     python3 main.py --mode train
     
-    Example 3:
-    python3 main.py --mode test
+    Example 3:(For more information about a run)
+    python3 main.py --mode test --ngram 2 --log-level INFO
+    
+    Example 4:(Predict language of a specific file)
+    python3 main.py --mode test --ngram 2 --filepath train-data/de/book1.txt
     """
