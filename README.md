@@ -127,10 +127,15 @@ Although the document is correctly classified as English, a significant portion 
 
 **Example Output:**
 
-<img src="images/Tri-gram.png" width="400" height="320" alt="uni-gram model results">
+<img src="images/Tri-gram.png" width="400" height="320" alt="tri-gram model results">
 
 **Observations:**  
 For tri-gram models, in the worst case scenario we'll have $N^3$ memory usage where $N$ is the size of the vocabulary. If $N$ is one million the model cannot be stored in normal RAM. To limit the excessive memory usage, most frequent tri-grams must be stored. Moving past tri-grams would mean the number of matches in the test document will decrease which is especially a problem for short texts/tweets.
+**`It's advisable to use smaller n-grams models for shorter text inference.`**
+
+**Example Output:(Multilingual Document)**
+
+<img src="images/mixed-trigram.png" width="400" height="320" alt="multi-lingual model results">
 
 **Improvements:** For each language we quickly built a corpus by downloading two free books from **Project Gutenberg**, the books might not have one pure language, there could be noisy data like wrong phrases and spellings. It's possible to build a better training corpus. 
 
